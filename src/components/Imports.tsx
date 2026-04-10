@@ -48,9 +48,23 @@ export type StudentResponse = {
   id: number;
   caseId: number;
   studentId: number;
-  diagnosis: string;
-  notes: string;
+  hpi: string;
+  history: {
+    medical: string;
+    family: string;
+    social: string;
+  }
+  medications: string;
+  allergies: string;
+  ros: string;
+  exam: string;
+  procedures: string;
+  diagnostics: string;
+  assessment: string;
   treatment: string;
+  codingBilling: string;
+  learningIssues: string;
+  documentation: string;
 };
 
 export const mockStudentResponses: StudentResponse[] = [
@@ -58,24 +72,68 @@ export const mockStudentResponses: StudentResponse[] = [
     id: 1,
     caseId: 1,
     studentId: 1,
-    diagnosis: "Myocardial Infarction",
-    notes: "Patient presents with severe chest pain radiating to the left arm. ECG shows ST elevation in leads II, III, and aVF. Troponin levels are elevated.",
-    treatment: "Administer aspirin, start IV nitroglycerin, and prepare for possible PCI."
+    hpi: "Severe chest pain radiating to the left arm starting 2 hours prior to arrival.",
+    history: {
+      medical: "Hypertension, hyperlipidemia",
+      family: "Father died of MI at age 58",
+      social: "Smokes 1 pack/day, occasional alcohol use"
+    },
+    medications: "Lisinopril, Atorvastatin",
+    allergies: "No known drug allergies",
+    ros: "Positive for chest pain and shortness of breath. Negative for fever, nausea, or abdominal pain.",
+    exam: "Diaphoretic, tachycardic, chest tenderness absent, S1/S2 normal.",
+    procedures: "ECG performed, IV access established",
+    diagnostics: "ECG shows ST elevation in II, III, aVF. Troponin elevated.",
+    assessment: "Acute Myocardial Infarction (Inferior STEMI)",
+    treatment: "Aspirin, nitroglycerin, heparin, prepare for PCI",
+    codingBilling: "I21.3 - STEMI of inferior wall",
+    learningIssues: "Recognizing ECG patterns of STEMI; timing of PCI intervention",
+    documentation: "Clear documentation of onset time critical for eligibility for reperfusion therapy"
   },
+
   {
     id: 2,
     caseId: 1,
     studentId: 2,
-    diagnosis: "Gastroesophageal Reflux Disease (GERD)",
-    notes: "Patient reports burning chest pain after meals, especially when lying down. No ECG changes or elevated troponin levels.",
-    treatment: "Recommend lifestyle modifications and start proton pump inhibitors."
+    hpi: "Burning chest pain after meals, worse when lying down.",
+    history: {
+      medical: "Obesity",
+      family: "Non-contributory",
+      social: "High-fat diet, sedentary lifestyle"
+    },
+    medications: "None",
+    allergies: "Penicillin (rash)",
+    ros: "Positive for heartburn. Negative for chest pressure or dyspnea.",
+    exam: "Normal cardiovascular and respiratory exam.",
+    procedures: "None",
+    diagnostics: "No ECG changes, troponins normal",
+    assessment: "Gastroesophageal Reflux Disease (GERD)",
+    treatment: "PPI therapy, dietary modification, weight loss",
+    codingBilling: "K21.9 - GERD without esophagitis",
+    learningIssues: "Differentiating GERD from cardiac chest pain",
+    documentation: "Symptom-based diagnosis; rule out cardiac causes first"
   },
+
   {
     id: 3,
     caseId: 2,
     studentId: 2,
-    diagnosis: "Eczema",
-    notes: "Patient has itchy, inflamed skin on arms and legs. No signs of infection or systemic illness.",
-    treatment: "Prescribe topical corticosteroids and recommend moisturizing regularly."
+    hpi: "Itchy, inflamed skin on arms and legs for several weeks.",
+    history: {
+      medical: "Asthma as a child",
+      family: "Mother has eczema",
+      social: "Works in dry environment"
+    },
+    medications: "None",
+    allergies: "Dust mites",
+    ros: "Positive for pruritus. No fever or systemic symptoms.",
+    exam: "Dry, erythematous patches on flexor surfaces.",
+    procedures: "Skin exam only",
+    diagnostics: "Clinical diagnosis",
+    assessment: "Atopic dermatitis (Eczema)",
+    treatment: "Topical corticosteroids, emollients",
+    codingBilling: "L20.9 - Atopic dermatitis",
+    learningIssues: "Chronic inflammatory skin conditions",
+    documentation: "Avoid irritants; emphasize moisturizing regimen"
   }
 ];
