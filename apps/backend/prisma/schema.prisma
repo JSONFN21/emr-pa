@@ -19,6 +19,10 @@ model User {
   targetLogs AuditLog[] @relation("AuditTarget")
 
   notes Note[]
+
+  patientsCreatedAsFaculty Patient[]        @relation("PatientsCreatedByFaculty")
+  caseAssignmentsAsStudent CaseAssignment[] @relation("CaseAssignmentStudent")
+  caseAssignmentsAsFaculty CaseAssignment[] @relation("CaseAssignmentFaculty")
 }
 
 /// Patient / chart header (demographics + status).
@@ -32,11 +36,17 @@ model Patient {
   dob        DateTime @db.Date
   gender     String
   codeStatus String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  /// Faculty user who created this case (null for legacy rows or admin-created cases).
+  facultyCreatorId String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
+  facultyCreator  User?            @relation("PatientsCreatedByFaculty", fields: [facultyCreatorId], references: [id], onDelete: SetNull)
   chiefComplaints ChiefComplaint[]
   notes           Note[]
+  assignments     CaseAssignment[]
+
+  @@index([facultyCreatorId])
 }
 
 /// One-to-many from Patient: specific complaints.
@@ -70,7 +80,23 @@ model Note {
   @@unique([studentId, patientId], name: "studentId_patientId")
 }
 
-  
+/// Links a student to a case (patient) for faculty workflow.
+model CaseAssignment {
+  id                  String   @id @default(uuid())
+  patientId           Int
+  studentId           String
+  assignedByFacultyId String
+  createdAt           DateTime @default(now())
+
+  patient           Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  student           User    @relation("CaseAssignmentStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  assignedByFaculty User    @relation("CaseAssignmentFaculty", fields: [assignedByFacultyId], references: [id], onDelete: Cascade)
+
+  @@unique([patientId, studentId])
+  @@index([patientId])
+  @@index([studentId])
+  @@index([assignedByFacultyId])
+}
 
 model AuditLog {
   id           String   @id @default(cuid())
