@@ -14,6 +14,7 @@ function resolveApiRoot(authBaseUrl: string): string {
 }
 
 const FACULTY_BASE_URL = `${resolveApiRoot(AUTH_BASE_URL)}/faculty`;
+const ASSIGNMENTS_BASE_URL = `${resolveApiRoot(AUTH_BASE_URL)}/assignments`;
 
 type ApiErrorResponse = {
   error?: string;
@@ -134,4 +135,20 @@ export async function facultyListCaseNotes(token: string, caseId: number): Promi
     },
   });
   return parseResponse<{ notes: FacultyCaseNote[] }>(response);
+}
+
+export async function facultyAssignCase(
+  token: string,
+  payload: { patientId: number; studentId: string }
+): Promise<{ assignment: unknown }> {
+  const response = await fetch(ASSIGNMENTS_BASE_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(payload),
+  });
+
+  return parseResponse<{ assignment: unknown }>(response);
 }

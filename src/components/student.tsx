@@ -35,6 +35,7 @@ import {
 import type { AssignedCase, NoteData, GradeNote, SaveNotePayload } from "../services/casesApi";
 import { touchCase, sortByLastInteracted } from "../services/caseStorage";
 import { logout, getStoredToken } from "../services/authApi";
+import { mockCases } from "./Imports";
 
 // ─── Section config ───────────────────────────────────────────────────────────
 
@@ -68,6 +69,22 @@ const DEFAULT_OPEN: OpenSections = {
   fhist: false, shist: false, proc: false, diag: false, lad: false,
   treat: false, cab: false, learn: false,
 };
+
+type PortalCase = AssignedCase & {
+  isExample?: boolean;
+  mockCaseId?: number;
+};
+
+const EXAMPLE_CASES: PortalCase[] = mockCases.map((c, index) => ({
+  id: -(index + 1),
+  caseTitle: c.title,
+  name: c.patient,
+  caseType: "pbl",
+  hasLabs: false,
+  profilePictureUrl: null,
+  isExample: true,
+  mockCaseId: c.id,
+}));
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -220,8 +237,8 @@ export default function Student() {
   const navigate = useNavigate();
 
   // ── cases & selection
-  const [cases, setCases] = useState<AssignedCase[]>([]);
-  const [selectedCase, setSelectedCase] = useState<AssignedCase | null>(null);
+  const [cases, setCases] = useState<PortalCase[]>(EXAMPLE_CASES);
+  const [selectedCase, setSelectedCase] = useState<PortalCase | null>(null);
   const [, setInteractionVersion] = useState(0);
 
   // ── current note form
@@ -250,7 +267,7 @@ export default function Student() {
   // ── snackbars
   const [loginSuccessOpen, setLoginSuccessOpen] = useState(false);
   const [assignmentNotice, setAssignmentNotice] = useState<string | null>(null);
-  const [saveSnack, setSaveSnack] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({
+  const [saveSnack, setSaveSnack] = useState<{ open: boolean; message: string; severity: "success" | "error" | "info" }>({
     open: false,
     message: "",
     severity: "success",
@@ -272,17 +289,18 @@ export default function Student() {
 
     getStudentCases(token)
       .then(({ assignments }) => {
-        const caseList = assignments.map((a) => a.patient);
-        setCases(caseList);
+        const caseList = assignments.map((a) => a.patient as PortalCase);
+        const mergedCases = [...EXAMPLE_CASES, ...caseList];
+        setCases(mergedCases);
 
         const pbl = caseList.filter((c) => c.caseType === "pbl").length;
         const sim = caseList.filter((c) => c.caseType === "sim").length;
 
         if (caseList.length === 0) {
-          setAssignmentNotice("No cases have been assigned to you yet. Check back later.");
+          setAssignmentNotice("No faculty cases assigned yet. Example cases are still available.");
         } else {
           setAssignmentNotice(
-            `You have ${pbl} PBL case(s) and ${sim} SIM case(s) assigned.`
+            `You have ${pbl} PBL case(s) and ${sim} SIM case(s) assigned, plus example cases.`
           );
         }
       })
@@ -299,12 +317,18 @@ export default function Student() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // ─── Case selection ──────────────────────────────────────────────────────
-  const handleCaseSelect = async (c: AssignedCase) => {
+  const handleCaseSelect = async (c: PortalCase) => {
     touchCase(c.id);
     setInteractionVersion((v) => v + 1);
     setSelectedCase(c);
     setActiveTab(0);
     setNoteFields({ caseId: c.id, hpi: "", exam: "" });
+
+    if (c.isExample) {
+      // Keep examples visible but start with empty fields on student side.
+      setNoteFields({ caseId: c.id, hpi: "", exam: "" });
+      return;
+    }
 
     const token = getStoredToken();
     if (!token) return;
@@ -350,6 +374,15 @@ export default function Student() {
     const token = getStoredToken();
     if (!token || !selectedCase) return;
 
+    if (selectedCase.isExample) {
+      setSaveSnack({
+        open: true,
+        message: "Example cases are read-only samples.",
+        severity: "info",
+      });
+      return;
+    }
+
     try {
       const { note } = await saveNote(token, { ...noteFields, caseId: selectedCase.id });
       setNoteFields(noteToFields(note));
@@ -367,6 +400,15 @@ export default function Student() {
   const handleSubmit = async () => {
     const token = getStoredToken();
     if (!token || !noteFields.id) return;
+
+    if (selectedCase?.isExample) {
+      setSaveSnack({
+        open: true,
+        message: "Example cases cannot be submitted.",
+        severity: "error",
+      });
+      return;
+    }
 
     try {
       const { note } = await submitNote(token, noteFields.id);
@@ -414,6 +456,13 @@ export default function Student() {
           <Typography variant="h6" fontWeight={700} sx={{ flexGrow: 1 }}>
             EMR Student Portal
           </Typography>
+          <Button
+            color="inherit"
+            onClick={() => navigate("/portal")}
+            sx={{ mr: 1 }}
+          >
+            Back to Portal
+          </Button>
           <Button
             color="inherit"
             startIcon={<LogoutIcon />}
