@@ -70,7 +70,7 @@ export default function SettingsPanel() {
       }
 
       setSubmitting(true);
-      const result = await adminChangeOwnPassword(token, {
+      await adminChangeOwnPassword(token, {
         currentPassword,
         newPassword,
       });
