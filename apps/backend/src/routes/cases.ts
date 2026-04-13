@@ -1,6 +1,7 @@
 import express, { Request, Response } from 'express';
 import { prisma } from '../db';
 import { authMiddleware } from '../middleware/auth';
+import { facultyOrAdminMiddleware } from '../middleware/facultyOrAdmin';
 
 const router = express.Router();
 
@@ -119,8 +120,8 @@ router.get('/:id/notes', async (req: Request, res: Response) => {
   }
 });
 
-// Creates a new case (patient row)
-router.post('/', async (req: Request, res: Response) => {
+// Creates a new case (patient row). Restricted to faculty and admin; faculty-owned cases record the creator.
+router.post('/', facultyOrAdminMiddleware, async (req: Request, res: Response) => {
   try {
     const body = req.body && typeof req.body === 'object' ? req.body : {};
     // If the body is not an object, return an error
@@ -148,6 +149,8 @@ router.post('/', async (req: Request, res: Response) => {
       }
     }
 
+    const facultyCreatorId = req.userRole === 'faculty' ? req.userId! : null;
+
     // Create the new case
     const created = await prisma.patient.create({
       data: {
@@ -158,6 +161,7 @@ router.post('/', async (req: Request, res: Response) => {
         gender: typeof gender === 'string' && gender.trim() ? gender.trim() : 'Unknown',
         codeStatus:
           typeof codeStatus === 'string' && codeStatus.trim() ? codeStatus.trim() : 'Full Code',
+        facultyCreatorId,
       },
     });
 

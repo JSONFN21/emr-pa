@@ -6,6 +6,8 @@ declare global {
   namespace Express {
     interface Request {
       userId?: string;
+      /** Set by role-based middleware after loading the user from the database. */
+      userRole?: string;
     }
   }
 }
