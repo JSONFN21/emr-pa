@@ -146,13 +146,8 @@ export default function StudentCasePage() {
             </Paper>
 
             <Paper sx={{ p: 2 }}>
-              <Typography fontWeight={700}>Learning Issues</Typography>
-              <Typography>{response.learningIssues}</Typography>
-            </Paper>
-
-            <Paper sx={{ p: 2 }}>
-              <Typography fontWeight={700}>Documentation</Typography>
-              <Typography>{response.documentation}</Typography>
+              <Typography fontWeight={700}>Notes</Typography>
+              <Typography>{response.notes}</Typography>
             </Paper>
 
           </Box>
