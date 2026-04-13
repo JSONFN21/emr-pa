@@ -1,7 +1,19 @@
-import { useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { mockCases, mockStudentResponses, mockStudents } from "../Imports";
 import { Box, Button, Typography, Drawer, List, ListItemButton, ListItemText, Divider, Paper } from "@mui/material";
+
+const SIDEBAR_SECTIONS = [
+  { key: "hpi", label: "HPI" },
+  { key: "history", label: "History" },
+  { key: "meds", label: "Medications & Allergies" },
+  { key: "ros", label: "Review of Systems" },
+  { key: "exam", label: "Physical Exam" },
+  { key: "diagnostics", label: "Diagnostics" },
+  { key: "assessment", label: "Assessment" },
+  { key: "treatment", label: "Treatment" },
+  { key: "coding", label: "Coding & Billing" },
+  { key: "notes", label: "Notes" },
+] as const;
 
 export default function StudentCasePage() {
   const { caseId, studentId } = useParams<{ caseId: string; studentId: string }>();
@@ -17,21 +29,6 @@ export default function StudentCasePage() {
     : (Array.from(studentId).reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % studentPoolSize) + 1;
   const response = mockStudentResponses.find(
     r => r.caseId === parseInt(caseId) && r.studentId === mappedMockStudentId);
-
-  const sidebarSections = useMemo(
-    () => [
-      { key: "hpi", label: "HPI" },
-      { key: "history", label: "History" },
-      { key: "meds", label: "Medications & Allergies" },
-      { key: "ros", label: "Review of Systems" },
-      { key: "exam", label: "Physical Exam" },
-      { key: "diagnostics", label: "Diagnostics" },
-      { key: "assessment", label: "Assessment" },
-      { key: "treatment", label: "Treatment" },
-      { key: "coding", label: "Coding & Billing" },
-      { key: "notes", label: "Notes" },],
-    []
-  );
 
   if (!caseData) return null;
 
@@ -64,7 +61,7 @@ export default function StudentCasePage() {
         </Typography>
 
         <List sx={{ mt: 2 }}>
-          {sidebarSections.map((section) => (
+          {SIDEBAR_SECTIONS.map((section) => (
             <ListItemButton key={section.key}>
               <ListItemText primary={section.label} />
             </ListItemButton>
