@@ -265,7 +265,13 @@ export default function Student() {
   const [search, setSearch] = useState("");
 
   // ── snackbars
-  const [loginSuccessOpen, setLoginSuccessOpen] = useState(false);
+  const [loginSuccessOpen, setLoginSuccessOpen] = useState(() => {
+    const isFreshLogin = sessionStorage.getItem("emr_login_success") === "true";
+    if (isFreshLogin) {
+      sessionStorage.removeItem("emr_login_success");
+    }
+    return isFreshLogin;
+  });
   const [assignmentNotice, setAssignmentNotice] = useState<string | null>(null);
   const [saveSnack, setSaveSnack] = useState<{ open: boolean; message: string; severity: "success" | "error" | "info" }>({
     open: false,
@@ -279,12 +285,6 @@ export default function Student() {
     if (!token) {
       navigate("/login");
       return;
-    }
-
-    // Show "Successfully logged in" toast if this is a fresh login session
-    if (sessionStorage.getItem('emr_login_success') === 'true') {
-      sessionStorage.removeItem('emr_login_success');
-      setLoginSuccessOpen(true);
     }
 
     getStudentCases(token)
