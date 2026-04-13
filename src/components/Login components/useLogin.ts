@@ -56,6 +56,8 @@ export default function useLogin(options: UseLoginOptions = {}): UseLoginReturn 
 
       if (result.token) {
         localStorage.setItem(storageKey, result.token);
+        // Signal to the student view that this is a fresh login
+        sessionStorage.setItem('emr_login_success', 'true');
       }
 
       onSuccess?.(result);
