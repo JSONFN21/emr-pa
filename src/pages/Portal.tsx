@@ -148,18 +148,6 @@ export default function PortalPage() {
               )}
             </Stack>
 
-              <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
-                <Button
-                  component={RouterLink}
-                  to="/student"
-                  variant="contained"
-                  size="small"
-                  sx={portalButtonSx}
-                  fullWidth
-                >
-                  Go to Student View
-                </Button>
-              </Stack>
           </Stack>
         </CardContent>
       </Card>
