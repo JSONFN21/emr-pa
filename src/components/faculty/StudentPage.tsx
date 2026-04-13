@@ -56,7 +56,7 @@ export default function StudentPage() {
                         {casesForStudent.map(c => (
                             <ListItemButton
                             key={c.id}
-                            onClick={() => navigate(`/studentCase/${c.id}`)}
+                            onClick={() => navigate(`/studentCase/${student.id}/${c.id}`)}
                             sx={{ borderRadius: 2, mb: 1 }}
                             >
                             <ListItemText
