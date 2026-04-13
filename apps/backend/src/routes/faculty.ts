@@ -23,6 +23,9 @@ function patientToCase(p: {
   dob: Date;
   gender: string;
   codeStatus: string;
+  caseType: string;
+  hasLabs: boolean;
+  profilePictureUrl: string | null;
   facultyCreatorId: string | null;
   createdAt: Date;
   updatedAt: Date;
@@ -35,6 +38,9 @@ function patientToCase(p: {
     dob: p.dob,
     gender: p.gender,
     codeStatus: p.codeStatus,
+    caseType: p.caseType,
+    hasLabs: p.hasLabs,
+    profilePictureUrl: p.profilePictureUrl,
     facultyCreatorId: p.facultyCreatorId,
     createdAt: p.createdAt,
     updatedAt: p.updatedAt,
@@ -155,9 +161,21 @@ router.get('/cases/:id/notes', async (req: Request, res: Response) => {
         studentId: n.studentId,
         student: n.student,
         hpi: n.hpi,
+        medications: n.medications,
+        allergies: n.allergies,
+        familyHistory: n.familyHistory,
+        socialHistory: n.socialHistory,
         physicalExam: n.physicalExam,
+        procedures: n.procedures,
+        diagnosis: n.diagnosis,
+        labAndDiagnostics: n.labAndDiagnostics,
         assessment: n.assessment,
+        codingAndBilling: n.codingAndBilling,
+        learningIssues: n.learningIssues,
         treatmentPlan: n.treatmentPlan,
+        isSubmitted: n.isSubmitted,
+        submittedAt: n.submittedAt,
+        grade: n.grade,
         feedback: n.feedback,
         createdAt: n.createdAt,
         updatedAt: n.updatedAt,
