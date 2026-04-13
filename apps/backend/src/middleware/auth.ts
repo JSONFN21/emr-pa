@@ -1,12 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../utils/auth';
 
-// Express request type extension to unclude userId
+// Express request type extension to include userId and userRole
 declare global {
   namespace Express {
     interface Request {
       userId?: string;
-      /** Set by role-based middleware after loading the user from the database. */
       userRole?: string;
     }
   }

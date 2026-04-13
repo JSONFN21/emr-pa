@@ -2,10 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 import { prisma } from '../db';
 
 /**
- * Requires an authenticated user whose role is `faculty` or `admin`.
- * Sets `req.userRole` for downstream handlers.
+ * Requires the authenticated user to have role "student".
+ * Also populates req.userRole for downstream handlers.
  */
-export const facultyOrAdminMiddleware = async (
+export const studentOnlyMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -27,15 +27,15 @@ export const facultyOrAdminMiddleware = async (
       return;
     }
 
-    if (user.role !== 'faculty' && user.role !== 'admin') {
-      res.status(403).json({ error: 'Faculty or admin access required' });
+    if (user.role !== 'student') {
+      res.status(403).json({ error: 'Student access required' });
       return;
     }
 
     req.userRole = user.role;
     next();
   } catch (error) {
-    console.error('facultyOrAdminMiddleware error:', error);
+    console.error('studentOnlyMiddleware error:', error);
     res.status(500).json({ error: 'Authorization check failed' });
   }
 };

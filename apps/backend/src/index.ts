@@ -1,24 +1,30 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import fs from 'fs';
 import { prisma } from './db';
 import authRoutes from './routes/auth';
 import notesRoutes from './routes/notes';
 import casesRoutes from './routes/cases';
 import adminRoutes from './routes/admin';
-import facultyRoutes from './routes/faculty';
 import assignmentsRoutes from './routes/assignments';
+import facultyRoutes from './routes/faculty';
+import studentRoutes from './routes/student';
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173')
+const uploadsDir = path.resolve(__dirname, '../../uploads');
+fs.mkdirSync(uploadsDir, { recursive: true });
+
+const allowedOrigins = (process.env.CORS_ORIGIN || 'http://localhost:5173,http://localhost:5174')
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean);
 
-// Middleware connecting the frontend to the backend
+// Middleware
 app.use(
   cors({
     origin(origin, callback) {
@@ -34,8 +40,8 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(uploadsDir));
 
-// Check to see if the server is running
 app.get('/health', (req: Request, res: Response) => {
   res.json({ status: 'Server is running' });
 });
@@ -44,10 +50,7 @@ app.get('/health', (req: Request, res: Response) => {
 app.get('/api/db-test', async (req: Request, res: Response) => {
   try {
     const userCount = await prisma.user.count();
-    res.json({
-      status: 'Database connected',
-      userCount,
-    });
+    res.json({ status: 'Database connected', userCount });
   } catch (error) {
     res.status(500).json({
       error: 'Database connection failed',
@@ -56,22 +59,13 @@ app.get('/api/db-test', async (req: Request, res: Response) => {
   }
 });
 
-// Routes for the authentication
+// Routes
 app.use('/api/auth', authRoutes);
-
-// Notes routes (student note creation/upload)
 app.use('/api/notes', notesRoutes);
-
-// Case routes
 app.use('/api/cases', casesRoutes);
-
-// Faculty workflow (cases I own, student roster, submissions)
-app.use('/api/faculty', facultyRoutes);
-
-// Case assignments (student ↔ case)
 app.use('/api/assignments', assignmentsRoutes);
-
-// Admin routes
+app.use('/api/faculty', facultyRoutes);
+app.use('/api/student', studentRoutes);
 app.use('/api/admin', adminRoutes);
 
 // 404 handler
@@ -93,10 +87,8 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-// Start server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
 
 export default app;
-
